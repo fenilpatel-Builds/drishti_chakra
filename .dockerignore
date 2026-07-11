@@ -1,0 +1,29 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+.Python
+
+# Virtual environments
+venv/
+.env.local
+*.env
+
+# IDE / OS metadata
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Docker build artifacts
+*.log
+*.tmp
+
+# Large media not needed inside container at build time
+# (static/ is mounted as a volume at runtime via docker-compose)
+# Firefly splash video — large file, mounted as volume instead
+"Firefly Drishti Chakra*.mp4"

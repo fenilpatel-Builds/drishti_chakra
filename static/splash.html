@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Drishti Chakra</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    width: 100%; height: 100%;
+    background: #000;
+    overflow: hidden;
+    font-family: 'Inter', sans-serif;
+  }
+
+  /* Full-bleed video */
+  #splash-video {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    object-fit: cover;
+    z-index: 1;
+  }
+
+  /* Dark gradient at bottom for legibility */
+  #gradient-overlay {
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(
+      to top,
+      rgba(0, 0, 0, 0.80) 0%,
+      rgba(0, 0, 0, 0.30) 35%,
+      transparent 60%
+    );
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  /* Bottom-left branding block */
+  #branding {
+    position: fixed;
+    bottom: 48px;
+    left: 48px;
+    z-index: 3;
+    pointer-events: none;
+    animation: fadeUp 0.8s ease 0.3s both;
+  }
+
+  #brand-title {
+    color: #00D1FF;
+    font-size: 36px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-shadow: 0 2px 20px rgba(0, 209, 255, 0.65), 0 0 40px rgba(0, 209, 255, 0.25);
+    line-height: 1;
+  }
+
+  #brand-tagline {
+    color: #B0BEC5;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 3.5px;
+    margin-top: 8px;
+    opacity: 0.9;
+  }
+
+  #brand-team {
+    color: #546E7A;
+    font-size: 9px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 2.5px;
+    margin-top: 6px;
+  }
+
+  /* Skip button bottom-right */
+  #splash-skip-btn {
+    position: fixed;
+    bottom: 48px;
+    right: 48px;
+    z-index: 3;
+    background: rgba(14, 17, 23, 0.82);
+    color: #00D1FF;
+    border: 1.5px solid #00D1FF;
+    border-radius: 8px;
+    padding: 12px 28px;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 4px 24px rgba(0, 209, 255, 0.18);
+    transition: background 0.22s ease, color 0.22s ease, box-shadow 0.22s ease, transform 0.15s ease;
+    animation: fadeUp 0.8s ease 0.5s both;
+    outline: none;
+  }
+
+  #splash-skip-btn:hover {
+    background: #00D1FF;
+    color: #0E1117;
+    box-shadow: 0 4px 32px rgba(0, 209, 255, 0.55);
+    transform: translateY(-1px);
+  }
+
+  #splash-skip-btn:active {
+    transform: translateY(0px);
+    box-shadow: 0 2px 16px rgba(0, 209, 255, 0.35);
+  }
+
+  /* Powered-by strip — bottom center */
+  #powered-by {
+    position: fixed;
+    bottom: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 3;
+    color: rgba(255,255,255,0.28);
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    white-space: nowrap;
+    pointer-events: none;
+    animation: fadeUp 1s ease 0.6s both;
+  }
+
+  /* Fade-out overlay used during dismiss transition */
+  #fade-out {
+    position: fixed;
+    inset: 0;
+    background: #0E1117;
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.55s ease;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+<!-- Full-bleed video -->
+<video id="splash-video" autoplay muted playsinline>
+  <source src="/app/static/drishti_chakra_vibe.mp4" type="video/mp4">
+</video>
+
+<!-- Dark gradient vignette -->
+<div id="gradient-overlay"></div>
+
+<!-- DRISHTI CHAKRA branding — bottom left -->
+<div id="branding">
+  <div id="brand-title">DRISHTI CHAKRA</div>
+  <div id="brand-tagline">Speeding up the R&amp;D Chakra</div>
+  <div id="brand-team">by Team NexAura</div>
+</div>
+
+<!-- Skip button — bottom right -->
+<button id="splash-skip-btn">Skip Intro &#10148;</button>
+
+<!-- Powered by strip -->
+<div id="powered-by">Powered by AMD Instinct&trade; GPUs &bull; Fireworks AI &bull; ROCm 6.1</div>
+
+<!-- Black fade-out layer for smooth exit -->
+<div id="fade-out"></div>
+
+<script>
+(function () {
+  var dismissed = false;
+
+  function dismiss() {
+    if (dismissed) return;
+    dismissed = true;
+
+    // 1. Fade to dark inside this iframe
+    var fadeEl = document.getElementById('fade-out');
+    fadeEl.style.opacity = '1';
+    fadeEl.style.pointerEvents = 'all';
+
+    // 2. Tell the parent Streamlit app by clicking the hidden Dismiss Splash button
+    setTimeout(function () {
+      try {
+        var pDoc = window.parent.document;
+        var buttons = pDoc.querySelectorAll("button");
+        var dismissBtn = null;
+        for (var i = 0; i < buttons.length; i++) {
+          if (buttons[i].textContent && buttons[i].textContent.includes("Dismiss Splash")) {
+            dismissBtn = buttons[i];
+            break;
+          }
+        }
+        if (dismissBtn) {
+          dismissBtn.click();
+        } else {
+          // Fallback redirect if button is not found
+          var loc = window.parent.location;
+          var baseUrl = loc.href.split('?')[0];
+          window.parent.location.replace(baseUrl + '?_splash=1');
+        }
+      } catch (e) {
+        console.error("DOM dismiss failed:", e);
+      }
+    }, 580);
+  }
+
+  // Skip button
+  document.getElementById('splash-skip-btn').addEventListener('click', function (e) {
+    e.preventDefault();
+    dismiss();
+  });
+
+  // Auto-dismiss when video ends
+  var video = document.getElementById('splash-video');
+  video.addEventListener('ended', dismiss);
+
+  // Safety: auto-dismiss after 32 s if video stalls/blocks
+  setTimeout(dismiss, 32000);
+
+  // If video fails to load, dismiss quickly so app isn't stuck
+  video.addEventListener('error', function () {
+    setTimeout(dismiss, 1200);
+  });
+})();
+</script>
+</body>
+</html>

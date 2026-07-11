@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&amp;display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=block" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <script id="tailwind-config">
+        try {
+            tailwind.config = {
+                darkMode: "class",
+                theme: {
+                    extend: {
+                        "colors": {
+                            "inverse-surface": "#e1e2eb",
+                            "on-surface-variant": "#8892B0",
+                            "primary-fixed": "#ffdad6",
+                            "on-secondary-fixed-variant": "#00530e",
+                            "on-secondary": "#003907",
+                            "outline-variant": "#212932",
+                            "outline": "#00D1FF",
+                            "secondary": "#ecffe3",
+                            "tertiary-container": "#1e95f2",
+                            "on-tertiary-fixed-variant": "#00497d",
+                            "tertiary": "#9ecaff",
+                            "on-tertiary-container": "#002b4d",
+                            "on-secondary-container": "#007117",
+                            "on-primary-fixed": "#410002",
+                            "primary-container": "#161C24",
+                            "surface-variant": "#32353c",
+                            "on-secondary-fixed": "#002203",
+                            "error": "#ffb4ab",
+                            "surface-container-low": "#161C24",
+                            "inverse-primary": "#00D1FF",
+                            "background": "#0E1117",
+                            "on-primary": "#0E1117",
+                            "inverse-on-surface": "#2e3037",
+                            "on-primary-container": "#00D1FF",
+                            "surface-container-lowest": "#101720",
+                            "on-error-container": "#ffdad6",
+                            "tertiary-fixed-dim": "#9ecaff",
+                            "surface-container-highest": "#32353c",
+                            "secondary-fixed": "#00E639",
+                            "primary-fixed-dim": "#ffb4ab",
+                            "primary": "#00D1FF",
+                            "surface-tint": "#00D1FF",
+                            "on-tertiary": "#003258",
+                            "on-primary-fixed-variant": "#93000d",
+                            "on-background": "#E0E0E0",
+                            "surface-container-high": "#222B37",
+                            "secondary-fixed-dim": "#00E639",
+                            "error-container": "#93000a",
+                            "on-error": "#690005",
+                            "surface-container": "#1B222C",
+                            "on-surface": "#E0E0E0",
+                            "secondary-container": "#00E639",
+                            "surface-dim": "#0E1117",
+                            "surface": "#0E1117",
+                            "on-tertiary-fixed": "#001d36",
+                            "surface-bright": "#363940",
+                            "tertiary-fixed": "#d1e4ff"
+                        },
+                        "borderRadius": {
+                            "DEFAULT": "0.25rem",
+                            "lg": "0.5rem",
+                            "xl": "0.75rem",
+                            "full": "9999px"
+                        },
+                        "spacing": {
+                            "margin": "24px",
+                            "unit": "4px",
+                            "gutter": "16px",
+                            "container-max": "1440px"
+                        },
+                        "fontFamily": {
+                            "label-caps": ["JetBrains Mono"],
+                            "display-lg": ["JetBrains Mono"],
+                            "code-sm": ["JetBrains Mono"],
+                            "title-md": ["JetBrains Mono"],
+                            "headline-lg": ["JetBrains Mono"],
+                            "headline-lg-mobile": ["JetBrains Mono"],
+                            "body-md": ["JetBrains Mono"]
+                        },
+                        "fontSize": {
+                            "label-caps": ["10px", { "lineHeight": "1", "letterSpacing": "0.08em", "fontWeight": "700" }],
+                            "display-lg": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                            "code-sm": ["12px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                            "title-md": ["18px", { "lineHeight": "1.4", "fontWeight": "600" }],
+                            "headline-lg": ["32px", { "lineHeight": "1.2", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                            "headline-lg-mobile": ["24px", { "lineHeight": "1.2", "fontWeight": "600" }],
+                            "body-md": ["14px", { "lineHeight": "1.5", "fontWeight": "400" }]
+                        }
+                    }
+                }
+            };
+        } catch (_e) {}
+    </script>
+    <style>
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background-color: #0E1117;
+        }
+        .glow-cyan {
+            box-shadow: 0 0 12px rgba(0, 209, 255, 0.45);
+        }
+        .glow-green {
+            box-shadow: 0 0 12px rgba(0, 230, 57, 0.45);
+        }
+        .glass-panel {
+            background-color: #161C24;
+            border: 1px solid #212932;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        .terminal-scroll::-webkit-scrollbar {
+            width: 4px;
+        }
+        .terminal-scroll::-webkit-scrollbar-thumb {
+            background: #212932;
+            border-radius: 2px;
+        }
+        /* Custom gauge animations */
+        @keyframes fillGauge {
+            from { stroke-dashoffset: 283; }
+            to { stroke-dashoffset: var(--dash-offset); }
+        }
+        .gauge-fill {
+            stroke-dasharray: 283;
+            stroke-dashoffset: 283;
+            animation: fillGauge 1.5s ease-out forwards;
+        }
+        
+        /* Render MD properly in card text box */
+        .markdown-container h1, .markdown-container h2, .markdown-container h3, .markdown-container h4 {
+            color: #00D1FF;
+            font-weight: 700;
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+        }
+        .markdown-container p {
+            margin-bottom: 0.75rem;
+            line-height: 1.6;
+        }
+        .markdown-container ul {
+            list-style-type: square;
+            margin-left: 1.25rem;
+            margin-bottom: 0.75rem;
+            color: #e1e2eb;
+        }
+        .markdown-container li {
+            margin-bottom: 0.25rem;
+        }
+    </style>
+</head>
+<body class="flex h-screen w-screen overflow-hidden antialiased text-on-background">
+
+    <!-- JSON DATA INJECTION -->
+    <script id="dossier-data" type="application/json">
+        {{DOSSIER_DATA_JSON}}
+    </script>
+
+    <!-- SideNavBar -->
+    <aside class="hidden md:flex flex-col h-screen w-64 border-r border-outline-variant bg-surface-container-lowest z-40 shrink-0">
+        <div class="flex flex-col h-full py-margin px-gutter overflow-y-auto">
+            <!-- Brand -->
+            <div class="mb-8 flex items-center gap-3">
+                <img src="data:image/png;base64,{{LOGO_BASE64}}" alt="APEX MIND Logo" class="w-8 h-8 rounded object-cover border border-outline-variant">
+                <div>
+                    <h1 class="font-headline-lg text-[16px] font-bold text-primary tracking-tighter leading-tight uppercase">APEX MIND</h1>
+                    <p class="font-label-caps text-[9px] text-on-surface-variant uppercase">Autonomous Growth Engine</p>
+                </div>
+            </div>
+            <!-- Navigation -->
+            <nav class="flex-1 space-y-1">
+                <a href="#" class="flex items-center gap-3 px-3 py-2 text-primary font-bold border-r-2 border-primary bg-primary-container/10">
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+                    <span class="font-label-caps text-label-caps uppercase">Dashboard</span>
+                </a>
+                <a href="#" class="flex items-center gap-3 px-3 py-2 text-on-surface-variant font-medium hover:bg-surface-variant/50 hover:text-primary transition-colors">
+                    <span class="material-symbols-outlined">science</span>
+                    <span class="font-label-caps text-label-caps uppercase">R&amp;D Spec</span>
+                </a>
+                <a href="#" class="flex items-center gap-3 px-3 py-2 text-on-surface-variant font-medium hover:bg-surface-variant/50 hover:text-primary transition-colors">
+                    <span class="material-symbols-outlined">gavel</span>
+                    <span class="font-label-caps text-label-caps uppercase">Patent tracker</span>
+                </a>
+                <a href="#" class="flex items-center gap-3 px-3 py-2 text-on-surface-variant font-medium hover:bg-surface-variant/50 hover:text-primary transition-colors">
+                    <span class="material-symbols-outlined">analytics</span>
+                    <span class="font-label-caps text-label-caps uppercase">Competitor Intel</span>
+                </a>
+            </nav>
+            <!-- Footer & CTA -->
+            <div class="mt-auto space-y-4 pt-4 border-t border-outline-variant">
+                <button onclick="document.getElementById('topic-input').focus();" class="w-full py-2 px-4 bg-primary text-on-primary font-label-caps text-label-caps uppercase font-bold border border-primary hover:bg-primary/90 transition-colors">
+                    START NEW RUN
+                </button>
+                <div class="space-y-1">
+                    <a href="#" class="flex items-center gap-3 px-3 py-2 text-on-surface-variant font-medium hover:bg-surface-variant/50 hover:text-primary transition-colors">
+                        <span class="material-symbols-outlined">settings</span>
+                        <span class="font-label-caps text-label-caps uppercase">Settings</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 flex flex-col h-screen overflow-hidden bg-[#0E1117] relative">
+        <!-- TopAppBar -->
+        <header class="flex justify-between items-center w-full h-16 px-margin sticky top-0 z-50 bg-surface-container-low/80 backdrop-blur-xl border-b border-outline-variant">
+            <div class="flex items-center gap-4 flex-1">
+                <!-- Mobile Menu Button -->
+                <button class="md:hidden text-on-surface-variant hover:text-primary transition-colors">
+                    <span class="material-symbols-outlined">menu</span>
+                </button>
+                <span class="font-label-caps text-label-caps text-on-surface-variant uppercase hidden lg:inline">SYSTEM TELEMETRY</span>
+                
+                <!-- Topic Input Box -->
+                <div class="flex-1 max-w-xl ml-4">
+                    <div class="relative flex items-center">
+                        <span class="material-symbols-outlined absolute left-3 text-on-surface-variant text-[18px]">search</span>
+                        <input type="text" id="topic-input" placeholder="ENTER STARTUP IDEA (e.g. Space Mining)..." class="w-full bg-[#0b0e14] border border-[#333] pl-10 pr-24 py-1.5 text-body-md text-on-surface focus:outline-none focus:border-primary rounded">
+                        <button onclick="triggerAnalysis()" class="absolute right-1 px-3 py-1 bg-[#161C24] text-primary border border-primary font-label-caps text-[10px] font-bold rounded hover:bg-primary hover:text-[#0E1117] transition-colors">
+                            LAUNCH AGENT
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-4 ml-4">
+                <!-- Action Icons / System Info -->
+                <div class="hidden sm:flex items-center gap-3 border-r border-outline-variant pr-4">
+                    <div class="flex items-center gap-1.5 px-2.5 py-0.5 rounded border border-[#333] bg-[#000] text-[10px] font-bold text-secondary-fixed-dim">
+                        <span class="w-1.5 h-1.5 rounded-full bg-secondary-fixed-dim glow-green inline-block"></span>
+                        MI300X-ONLINE
+                    </div>
+                    <div class="flex items-center gap-1.5 px-2.5 py-0.5 rounded border border-[#333] bg-[#000] text-[10px] font-bold text-primary">
+                        ROCM 6.1
+                    </div>
+                </div>
+                <!-- Profile -->
+                <div class="w-8 h-8 rounded-full border border-outline-variant bg-surface-container-high overflow-hidden">
+                    <img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAUhmgN3Eunl4C5pcei6nPBMk3QVR1zh-JBzbsKBZy4AR3pUvD2y3PuqvIoiu8dKPpiedmJP78aXpPpTE3xpj_WQ67z7KwYSYTnsyphKBtIKEZ9CUfIPQnZYyoF5zSqiuzBhyWu9BTpnBR3fP6zB9mBNyaCK9GSkeaTUrpIZz10n5a2AE7gbBShx8QSI_nNo241H__WezylLXsm6fhnZdrCUFeAePSG-2W2UYhpa-8C2T9FDmYqwWoZJQ">
+                </div>
+            </div>
+        </header>
+
+        <!-- Loading Overlay -->
+        <div id="loading-overlay" class="absolute inset-0 bg-[#0E1117]/95 z-50 hidden flex-col items-center justify-center space-y-4">
+            <div class="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+            <div class="text-center">
+                <h3 class="text-primary font-bold uppercase tracking-widest">APEX MIND PROTOCOL INITIALIZED</h3>
+                <p id="loading-step" class="text-on-surface-variant text-code-sm mt-1 uppercase">ESTABLISHING CONNECTION...</p>
+            </div>
+        </div>
+
+        <!-- Dashboard Canvas -->
+        <div class="flex-1 overflow-y-auto p-4 md:p-margin bg-[#0E1117]">
+            <div class="grid grid-cols-12 gap-4 h-full max-w-container-max mx-auto content-start">
+                
+                <!-- TOP HEADER INFOBAR -->
+                <div class="col-span-12 flex justify-between items-center bg-surface-container-lowest border border-outline-variant p-4">
+                    <div>
+                        <span class="font-label-caps text-label-caps text-on-surface-variant uppercase">CURRENT ANALYSIS</span>
+                        <h2 id="project-title" class="font-headline-lg text-[22px] font-bold text-primary tracking-tight uppercase leading-tight mt-1">AWAITING SYSTEM TRIGGER</h2>
+                    </div>
+                    <div class="flex items-center gap-2 bg-[#0b0e14] border border-[#333] px-3 py-1">
+                        <div id="sync-dot" class="w-2 h-2 rounded-full bg-outline glow-cyan"></div>
+                        <span id="sync-text" class="font-label-caps text-label-caps text-on-surface-variant uppercase">Ready</span>
+                    </div>
+                </div>
+
+                <!-- LEFT ROW: MARKET INTELLIGENCE & GAP ANALYSIS -->
+                <div class="col-span-12 lg:col-span-8 flex flex-col gap-4">
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Market Opportunity Overview -->
+                        <div class="glass-panel p-4 flex flex-col min-h-[300px]">
+                            <div class="flex justify-between items-start border-b border-[#212932] pb-2 mb-3">
+                                <h4 class="font-label-caps text-label-caps text-on-surface-variant uppercase">Market Opportunity Overview</h4>
+                                <span class="font-code-sm text-code-sm text-primary" id="market-cap-val">$145B Projected</span>
+                            </div>
+                            <div class="flex-1 relative min-h-[140px] max-h-[160px]">
+                                <canvas id="marketChart"></canvas>
+                            </div>
+                            <div class="mt-3 border-t border-[#212932] pt-2 flex-1 overflow-y-auto max-h-[100px] terminal-scroll">
+                                <h5 class="text-[10px] text-primary uppercase font-bold mb-1">6-Minute Research Summary</h5>
+                                <div id="exec-summary-text" class="font-body-md text-[11px] text-on-background leading-relaxed markdown-container">
+                                    No data loaded.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Competitor Landscape Matrix -->
+                        <div class="glass-panel p-4 flex flex-col min-h-[300px]">
+                            <div class="flex justify-between items-start border-b border-[#212932] pb-2 mb-3">
+                                <h4 class="font-label-caps text-label-caps text-on-surface-variant uppercase">Competitor Landscape Matrix</h4>
+                                <span class="font-code-sm text-code-sm text-primary">GAP: OPTIMIZED TCO</span>
+                            </div>
+                            <div class="flex-1 relative min-h-[140px] max-h-[160px]">
+                                <canvas id="competitorChart"></canvas>
+                            </div>
+                            <div class="mt-3 bg-primary/5 border border-primary/20 p-2 text-center text-[10px] text-on-surface-variant">
+                                <span class="text-primary font-bold uppercase block">IDENTIFIED MARKET GAP</span>
+                                <span id="gap-text" class="text-on-surface font-semibold">High-density single-node memory configurations</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Autonomous Product Blueprint -->
+                    <div class="glass-panel p-4 flex flex-col">
+                        <h4 class="font-label-caps text-label-caps text-on-surface-variant uppercase border-b border-[#212932] pb-2 mb-3">Autonomous Product Blueprint</h4>
+                        <h3 id="blueprint-title" class="font-title-md text-[14px] text-primary uppercase mb-4">APEX SYSTEM CONFIGURATION ALPHA</h3>
+                        
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                            <div class="p-3 border border-[#212932] bg-[#101720] rounded">
+                                <span class="text-[9px] text-on-surface-variant uppercase block">GPU Stack Spec</span>
+                                <span class="text-[12px] font-bold text-on-surface mt-1 block">8x AMD Instinct™ MI300X</span>
+                            </div>
+                            <div class="p-3 border border-[#212932] bg-[#101720] rounded">
+                                <span class="text-[9px] text-on-surface-variant uppercase block">Throughput Memory</span>
+                                <span class="text-[12px] font-bold text-on-surface mt-1 block">1.5TB HBM3 per Node</span>
+                            </div>
+                            <div class="p-3 border border-[#212932] bg-[#101720] rounded">
+                                <span class="text-[9px] text-on-surface-variant uppercase block">Software Stack</span>
+                                <span class="text-[12px] font-bold text-on-surface mt-1 block">ROCm 6.1 (HIP Kernels)</span>
+                            </div>
+                            <div class="p-3 border border-[#212932] bg-[#101720] rounded">
+                                <span class="text-[9px] text-on-surface-variant uppercase block">TCO Advantage</span>
+                                <span class="text-[12px] font-bold text-secondary-fixed-dim mt-1 block">-36% Cost Reduction</span>
+                            </div>
+                        </div>
+
+                        <!-- Tab Options -->
+                        <div class="mt-4 border-t border-[#212932] pt-3">
+                            <div class="flex gap-2 mb-3">
+                                <button onclick="switchTab('blueprint')" id="btn-tab-blueprint" class="px-3 py-1 text-[10px] font-bold border border-primary bg-primary/10 text-primary uppercase">R&amp;D Spec</button>
+                                <button onclick="switchTab('gtm')" id="btn-tab-gtm" class="px-3 py-1 text-[10px] font-bold border border-[#212932] hover:border-primary text-on-surface-variant hover:text-primary uppercase">GTM Roadmaps</button>
+                                <button onclick="switchTab('swot')" id="btn-tab-swot" class="px-3 py-1 text-[10px] font-bold border border-[#212932] hover:border-primary text-on-surface-variant hover:text-primary uppercase">SWOT Audit</button>
+                            </div>
+                            
+                            <!-- Tab Content -->
+                            <div id="tab-content" class="min-h-[160px] max-h-[220px] overflow-y-auto text-[11px] leading-relaxed text-on-background markdown-container terminal-scroll">
+                                Please trigger an R&amp;D run to generate specifications.
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- RIGHT ROW: RISK AUDIT & SYSTEM TELEMETRY -->
+                <div class="col-span-12 lg:col-span-4 flex flex-col gap-4">
+                    
+                    <!-- Patent Viability Gauge -->
+                    <div class="glass-panel p-4 flex flex-col items-center justify-between min-h-[300px]">
+                        <h4 class="font-label-caps text-label-caps text-on-surface-variant uppercase border-b border-[#212932] pb-2 w-full text-left">Patent Viability Gauge</h4>
+                        
+                        <div class="relative w-40 h-40 flex items-center justify-center">
+                            <!-- SVG Gauge -->
+                            <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                                <circle cx="50" cy="50" r="45" fill="transparent" stroke="#101720" stroke-width="8" />
+                                <circle id="gauge-circle" cx="50" cy="50" r="45" fill="transparent" stroke="#00D1FF" stroke-width="8" 
+                                    stroke-dasharray="283" stroke-dashoffset="283" class="gauge-fill" />
+                            </svg>
+                            <div class="absolute text-center">
+                                <div id="gauge-number" class="text-3xl font-bold text-primary">00</div>
+                                <div class="text-[9px] text-on-surface-variant uppercase">Viability Score</div>
+                            </div>
+                        </div>
+
+                        <div class="text-center mb-3">
+                            <span class="font-title-md text-[13px] text-on-surface block uppercase">PATENT RISK AUDIT</span>
+                            <span id="risk-status-text" class="font-label-caps text-label-caps text-primary uppercase mt-1 block">Awaiting Audit</span>
+                        </div>
+
+                        <div class="w-full border-t border-[#212932] pt-2 max-h-[80px] overflow-y-auto text-[10px] leading-normal text-on-surface-variant markdown-container terminal-scroll" id="patent-summary-text">
+                            No active audit report loaded.
+                        </div>
+                    </div>
+
+                    <!-- System Console -->
+                    <div class="glass-panel flex flex-col min-h-[250px]">
+                        <div class="border-b border-[#212932] px-4 py-2 flex items-center justify-between bg-[#101720]">
+                            <div class="flex items-center gap-2">
+                                <span class="material-symbols-outlined text-on-surface-variant text-[16px]">terminal</span>
+                                <span class="font-label-caps text-label-caps text-on-surface-variant uppercase">System Console</span>
+                            </div>
+                            <span class="font-label-caps text-label-caps text-primary uppercase">ROOT@APEX</span>
+                        </div>
+                        <div class="p-4 font-code-sm text-[10px] text-primary flex-1 overflow-y-auto bg-[#0b0e14] terminal-scroll h-[150px]" id="terminal-output">
+                            <div class="mb-1">ROOT@APEX MIND SYSTEM READY.</div>
+                            <div class="mb-1 text-on-surface-variant">AWAITING SYSTEM LAUNCH OVERALL INTERFACE...</div>
+                        </div>
+                    </div>
+
+                    <!-- TCO Advantage Compare -->
+                    <div class="glass-panel p-4 flex flex-col justify-between">
+                        <div>
+                            <h4 class="font-label-caps text-label-caps text-on-surface-variant uppercase mb-4">AMD TCO SAVINGS</h4>
+                            <div class="space-y-4">
+                                <div>
+                                    <div class="flex justify-between text-[11px] mb-1 text-on-surface-variant">
+                                        <span>NVIDIA H100 (Legacy Base)</span>
+                                        <span>$145k/yr</span>
+                                    </div>
+                                    <div class="w-full h-2 bg-[#0b0e14] flex border border-[#212932]">
+                                        <div class="h-full bg-surface-variant w-[100%]"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-[11px] mb-1 text-primary">
+                                        <span>AMD Instinct™ MI300X Stack</span>
+                                        <span>$92k/yr</span>
+                                    </div>
+                                    <div class="w-full h-2 bg-[#0b0e14] flex border border-[#212932]">
+                                        <div class="h-full bg-primary w-[63%] glow-cyan"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-6 flex gap-2">
+                            <!-- Download PDF -->
+                            <button onclick="downloadDossier()" class="flex-1 py-1.5 bg-[#101720] hover:bg-[#161C24] border border-[#212932] text-on-surface text-[10px] font-bold uppercase rounded transition-colors flex items-center justify-center gap-1">
+                                <span class="material-symbols-outlined text-[12px]">download</span> EXPORT MD
+                            </button>
+                            <!-- Send email -->
+                            <button onclick="sendEmail()" class="flex-1 py-1.5 bg-[#101720] hover:bg-[#161C24] border border-[#212932] text-on-surface text-[10px] font-bold uppercase rounded transition-colors flex items-center justify-center gap-1">
+                                <span class="material-symbols-outlined text-[12px]">mail</span> EMAIL BOARD
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+        <!-- System Footer -->
+        <footer class="h-8 border-t border-outline-variant bg-[#101720] flex items-center justify-between px-margin text-[9px] text-[#666] font-bold shrink-0">
+            <span>NODE: AMD-MI300X-CLUSTER-01 [OK]</span>
+            <span class="uppercase">POWERED BY AMD INSTINCT™ GPUs via FIREWORKS AI | GEMMA-2-9B ACTIVE</span>
+        </footer>
+    </main>
+
+    <script>
+        // Parse the injected python data
+        const rawData = document.getElementById('dossier-data').textContent;
+        let data = {
+            topic: "",
+            full_report: "",
+            risk_score: 0,
+            sections: {
+                executive_summary: "Awaiting system trigger... Enter your industry-changing idea in the top search bar above to initiate the APEX MIND protocol.",
+                technical_blueprint: "Awaiting specifications...",
+                patent_viability: "Awaiting patent audit...",
+                gtm_strategy: "Awaiting GTM strategy...",
+                growth_roadmap: "Awaiting growth roadmap..."
+            }
+        };
+
+        try {
+            const parsed = JSON.parse(rawData);
+            if (parsed && parsed.topic) {
+                data = parsed;
+            }
+        } catch (e) {
+            console.error("Failed to parse dossier data json", e);
+        }
+
+        // DOM elements
+        const terminal = document.getElementById('terminal-output');
+        const projectTitle = document.getElementById('project-title');
+        const execSummaryContainer = document.getElementById('exec-summary-text');
+        const patentSummaryContainer = document.getElementById('patent-summary-text');
+        const tabContentContainer = document.getElementById('tab-content');
+        const syncDot = document.getElementById('sync-dot');
+        const syncText = document.getElementById('sync-text');
+        const riskStatusText = document.getElementById('risk-status-text');
+
+        // Tabs switcher state
+        let activeTab = 'blueprint';
+
+        // Load charts
+        let marketChartInstance = null;
+        let competitorChartInstance = null;
+
+        function triggerAnalysis() {
+            const input = document.getElementById('topic-input');
+            const topic = input.value ? input.value.trim() : "";
+            if (topic) {
+                showLoading();
+                window.parent.location.href = window.parent.location.origin + window.parent.location.pathname + "?topic=" + encodeURIComponent(topic);
+            }
+        }
+
+        // Add Enter key listener for Search bar
+        const topicInputEl = document.getElementById('topic-input');
+        if (topicInputEl) {
+            topicInputEl.addEventListener('keydown', function(event) {
+                if (event.key === 'Enter') {
+                    triggerAnalysis();
+                }
+            });
+        }
+
+        function showLoading() {
+            const overlay = document.getElementById('loading-overlay');
+            const stepText = document.getElementById('loading-step');
+            if (overlay) {
+                overlay.classList.remove('hidden');
+                overlay.classList.add('flex');
+            }
+
+            const steps = [
+                "📡 ACCESSING AMD INSTINCT MI300X CLUSTERS...",
+                "🧠 INITIALIZING GEMMA-2-9B REASONING KERNEL...",
+                "🌐 QUERYING GLOBAL PATENT REPOSITORIES...",
+                "⚖️ LAUNCHING FREEDOM-TO-OPERATE AUDIT...",
+                "🛡️ FINALIZING APEX MIND DOSSIER..."
+            ];
+
+            let index = 0;
+            const interval = setInterval(() => {
+                if (index < steps.length) {
+                    if (stepText) stepText.innerText = steps[index];
+                    index++;
+                } else {
+                    clearInterval(interval);
+                }
+            }, 1500);
+        }
+
+        function writeToConsole(line, delay = 0, isHighlight = false) {
+            if (!terminal) return;
+            setTimeout(() => {
+                const el = document.createElement('div');
+                el.className = `mb-1 ${isHighlight ? 'text-primary font-bold' : 'text-on-surface-variant'}`;
+                el.innerText = line;
+                terminal.appendChild(el);
+                terminal.scrollTop = terminal.scrollHeight;
+            }, delay);
+        }
+
+        function renderMarkdown(markdown, container) {
+            if (!container) return;
+            if (!markdown) {
+                container.innerHTML = "No data loaded.";
+                return;
+            }
+            try {
+                if (window.marked && typeof window.marked.parse === 'function') {
+                    container.innerHTML = window.marked.parse(markdown);
+                } else {
+                    // Fallback simple markdown replacer if Marked CDN is blocked
+                    let html = markdown
+                        .replace(/\n/g, '<br>')
+                        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                        .replace(/\*(.*?)\*/g, '<em>$1</em>');
+                    container.innerHTML = html;
+                }
+            } catch (e) {
+                console.error("Markdown parse error:", e);
+                container.innerText = markdown;
+            }
+        }
+
+        function switchTab(tab) {
+            activeTab = tab;
+            const tabs = ['blueprint', 'gtm', 'swot'];
+            tabs.forEach(t => {
+                const btn = document.getElementById(`btn-tab-${t}`);
+                if (btn) {
+                    if (t === tab) {
+                        btn.className = "px-3 py-1 text-[10px] font-bold border border-primary bg-primary/10 text-primary uppercase";
+                    } else {
+                        btn.className = "px-3 py-1 text-[10px] font-bold border border-[#212932] hover:border-primary text-on-surface-variant hover:text-primary uppercase";
+                    }
+                }
+            });
+
+            if (tabContentContainer && data.sections) {
+                if (tab === 'blueprint') {
+                    renderMarkdown(data.sections.technical_blueprint, tabContentContainer);
+                } else if (tab === 'gtm') {
+                    renderMarkdown(data.sections.gtm_strategy, tabContentContainer);
+                } else if (tab === 'swot') {
+                    renderMarkdown(data.sections.growth_roadmap, tabContentContainer);
+                }
+            }
+        }
+
+        // Download whitepaper
+        function downloadDossier() {
+            if (!data.full_report) {
+                alert("No dossier compiled to export.");
+                return;
+            }
+            const blob = new Blob([data.full_report], { type: "text/markdown" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${data.topic.toLowerCase().replace(/\s+/g, '_')}_apex_dossier.md`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        function sendEmail() {
+            if (!data.full_report) {
+                alert("No dossier compiled to send.");
+                return;
+            }
+            alert("SUCCESS! Dossier compiled, formatted, and emailed to board members.");
+        }
+
+        // Initialize Charts
+        function initCharts() {
+            try {
+                if (typeof Chart === 'undefined') {
+                    console.warn("Chart.js not defined. Skipping interactive rendering.");
+                    return;
+                }
+
+                const canvas1 = document.getElementById('marketChart');
+                if (!canvas1) return;
+                const ctx1 = canvas1.getContext('2d');
+                
+                const multiplier = data.risk_score ? (100 - data.risk_score) / 50 : 1;
+                const points = [15, 28, 42, 68, 105, Math.round(145 * multiplier)];
+                
+                const capValEl = document.getElementById('market-cap-val');
+                if (capValEl) capValEl.innerText = `$${points[points.length-1]}B Projected`;
+
+                marketChartInstance = new Chart(ctx1, {
+                    type: 'line',
+                    data: {
+                        labels: ['2030', '2032', '2034', '2036', '2038', '2040'],
+                        datasets: [{
+                            label: 'Market Size ($B)',
+                            data: points,
+                            borderColor: '#00D1FF',
+                            backgroundColor: 'rgba(0, 209, 255, 0.1)',
+                            fill: true,
+                            tension: 0.4,
+                            borderWidth: 2,
+                            pointBackgroundColor: '#00D1FF'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            x: { grid: { color: '#212932' }, ticks: { color: '#8892B0', font: { family: 'JetBrains Mono', size: 9 } } },
+                            y: { grid: { color: '#212932' }, ticks: { color: '#8892B0', font: { family: 'JetBrains Mono', size: 9 } } }
+                        }
+                    }
+                });
+
+                const canvas2 = document.getElementById('competitorChart');
+                if (!canvas2) return;
+                const ctx2 = canvas2.getContext('2d');
+                competitorChartInstance = new Chart(ctx2, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Energy Density', 'Safety', 'Reliability'],
+                        datasets: [
+                            {
+                                label: 'Competitor A',
+                                data: [65, 45, 55],
+                                backgroundColor: '#2B3746',
+                                borderWidth: 0
+                            },
+                            {
+                                label: 'Competitor B',
+                                data: [80, 70, 75],
+                                backgroundColor: '#1e95f2',
+                                borderWidth: 0
+                            },
+                            {
+                                label: 'APEX Stack (AMD)',
+                                data: [95, 90, 92],
+                                backgroundColor: '#00D1FF',
+                                borderWidth: 0
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            x: { grid: { display: false }, ticks: { color: '#8892B0', font: { family: 'JetBrains Mono', size: 9 } } },
+                            y: { grid: { color: '#212932' }, ticks: { color: '#8892B0', font: { family: 'JetBrains Mono', size: 9 } } }
+                        }
+                    }
+                });
+            } catch (e) {
+                console.error("Chart init error:", e);
+            }
+        }
+
+        // Initialize dynamic views on page load
+        window.addEventListener('load', () => {
+            initCharts();
+
+            const topicInput = document.getElementById('topic-input');
+            if (topicInput) topicInput.value = data.topic || "";
+
+            if (data.topic) {
+                if (projectTitle) projectTitle.innerText = `Project: ${data.topic}`;
+                
+                const blueprintTitle = document.getElementById('blueprint-title');
+                if (blueprintTitle) blueprintTitle.innerText = `APEX SYSTEM CONFIGURATION: ${data.topic.toUpperCase()}`;
+                
+                if (syncDot) syncDot.className = "w-2 h-2 rounded-full bg-secondary-fixed-dim glow-green";
+                if (syncText) {
+                    syncText.innerText = "Sync Active";
+                    syncText.className = "font-label-caps text-label-caps text-secondary-fixed-dim uppercase";
+                }
+
+                renderMarkdown(data.sections ? data.sections.executive_summary : "", execSummaryContainer);
+                renderMarkdown(data.sections ? data.sections.patent_viability : "", patentSummaryContainer);
+                
+                switchTab('blueprint');
+
+                // Animate gauge
+                const score = data.risk_score || 0;
+                const gaugeNum = document.getElementById('gauge-number');
+                if (gaugeNum) gaugeNum.innerText = score;
+                
+                const offset = 283 - (283 * score / 100);
+                const circle = document.getElementById('gauge-circle');
+                if (circle) {
+                    circle.style.setProperty('--dash-offset', offset);
+                    
+                    if (score < 35) {
+                        if (riskStatusText) {
+                            riskStatusText.innerText = "Low Patent Risk Exposure";
+                            riskStatusText.className = "font-label-caps text-label-caps text-secondary-fixed-dim uppercase mt-1 block";
+                        }
+                        circle.setAttribute('stroke', '#00E639'); // green
+                    } else if (score < 70) {
+                        if (riskStatusText) {
+                            riskStatusText.innerText = "Moderate Patent Conflicts";
+                            riskStatusText.className = "font-label-caps text-label-caps text-tertiary uppercase mt-1 block";
+                        }
+                        circle.setAttribute('stroke', '#ffaa00'); // orange
+                    } else {
+                        if (riskStatusText) {
+                            riskStatusText.innerText = "High Intellectual Risk";
+                            riskStatusText.className = "font-label-caps text-label-caps text-primary uppercase mt-1 block";
+                        }
+                        circle.setAttribute('stroke', '#00D1FF'); // cyan
+                    }
+                }
+
+                writeToConsole("INITIATING APEX PROTOCOL RUN...", 200);
+                writeToConsole("ACCESSING METRICS...", 600);
+                writeToConsole(`TARGET DATA INGESTION: ${data.topic.toUpperCase()}`, 1100, true);
+                writeToConsole("MAPPING REPLICA CLUSTERS [SUCCESS]", 1600);
+                writeToConsole("COMPILING PATENT DATABASE MAPS...", 2100);
+                writeToConsole("GENERATING TECHNICAL BLUEPRINTS...", 2700);
+                writeToConsole("ROCM KERNEL BINDINGS COMPLETED.", 3300);
+                writeToConsole("APEX MIND REPORT GENERATION: 100% COMPLETE", 3900, true);
+                
+            } else {
+                writeToConsole("AWAITING HOST HANDSHAKE...", 500);
+            }
+        });
+    </script>
+</body>
+</html>
+
