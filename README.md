@@ -1,4 +1,4 @@
-# ☸️ Drishti Chakra (Drishti Apex)
+# ☸️ Drishti Chakra (By Team NexAura)
 ### *Autonomous Industrial R&D & Strategic Intelligence Engine*
 
 [![AMD Instinct™ MI300X](https://img.shields.io/badge/Powered%20By-AMD%20Instinct%E2%84%A2%20MI300X-blue.svg)](https://www.amd.com/en/products/accelerators/instinct/mi300/mi300x.html)
@@ -33,20 +33,7 @@ Targeting a fraction of the global $500B enterprise R&D, compliance, and strateg
 
 ---
 
-## 4. Presentation Outline (PPT Slides)
-* **Slide 1: Title & Vision** – *Drishti Chakra: Eliminating the $500B Innovation Blindspot.*
-* **Slide 2: The Problem** – *The R&D Bottleneck: Why deep-tech projects stall and fail today.*
-* **Slide 3: The Tech Stack** – *ROCm 6.x + AMD Instinct MI300X + Fireworks AI + Gemma-2-9b.*
-* **Slide 4: Case Study: Electrogravitics** – *Autonomous engineering blueprints for anti-gravity propulsion systems.*
-* **Slide 5: The UI/UX Canvas** – *Our dark cybernetic industrial dashboard displaying Shodh, Manthan, and Parikshan phases.*
-* **Slide 6: Business Model & Pricing** – *TCO advantages of AMD MI300X vs. NVIDIA H100.*
-* **Slide 7: Conclusion** – *Idea tamari, Shakti AMD ni, ane Drishti amari! (Your idea, AMD's power, and our vision!)*
-
----
-
 ## 5. How to Deploy and Test
-
-## 5. How to Deploy and Test (For Judges)
 
 ### Prerequisites
 - Docker & Docker-Compose installed.
