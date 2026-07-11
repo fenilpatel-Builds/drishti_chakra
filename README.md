@@ -1,4 +1,4 @@
-# ☸️ Drishti Chakra (By Team NexAura)
+# ☸️ Drishti Chakra 
 ### *Autonomous Industrial R&D & Strategic Intelligence Engine*
 
 [![AMD Instinct™ MI300X](https://img.shields.io/badge/Powered%20By-AMD%20Instinct%E2%84%A2%20MI300X-blue.svg)](https://www.amd.com/en/products/accelerators/instinct/mi300/mi300x.html)
@@ -9,7 +9,7 @@
 ---
 
 ## 1. Project Title
-**Drishti Chakra (Drishti Apex): Autonomous Industrial R&D Engine**
+**Drishti Chakra : Autonomous Industrial R&D Engine**
 
 ---
 
